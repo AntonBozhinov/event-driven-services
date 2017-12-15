@@ -1,0 +1,46 @@
+# Use postgres/example user/password credentials
+version: '3.2'
+
+services:
+
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: 'example'
+    volumes:
+      - ./db/postgres:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - backend
+
+
+  users:
+    build: ./users
+    restart: always
+    volumes:
+      - ./users:/usr/src/app
+    networks:
+      - backend
+    ports:
+      - 3000:3000
+      - 9229:9229
+    depends_on: 
+      - db
+
+  rabbitmq:
+    image: rabbitmq:latest
+    ports:
+      - 5672:5672
+    networks:
+      - backend
+    depends_on:
+      - users
+    
+
+
+networks:
+  backend:
+    driver: bridge
