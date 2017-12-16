@@ -14,6 +14,7 @@
     "express": "^4.16.2",
     "logger": "file:../modules/logger",
     "message-broker": "file:../modules/message-broker",
+    "module-exists": "^0.1.1",
     "rabbit-events": "file:../modules/rabbit-events"
   }
 }

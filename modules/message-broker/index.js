@@ -1,5 +1,5 @@
 const EventEmitter = require('events');
-const events = require('rabbit-events').messageBroker;
+const events = require('rabbit-events').MessageBroker;
 const Logger = require('logger');
 
 const {
@@ -19,7 +19,7 @@ class MessageBroker extends EventEmitter {
     constructor() {
         super();
         this.on(CONNECTING, handleConnection.bind(this));
-        this.once(CONNECTED, createChannel.bind(this));
+        this.on(CONNECTED, createChannel.bind(this));
     }
 
     static getInstance() {
