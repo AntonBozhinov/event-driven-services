@@ -31,9 +31,10 @@ services:
   #     - db
 
   rabbitmq:
-    image: rabbitmq:latest
+    image: rabbitmq:3-management
     ports:
       - 5672:5672
+      - 8080:15672
     networks:
       - backend
     # depends_on:
