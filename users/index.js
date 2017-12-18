@@ -2,7 +2,7 @@ const app = require('express')();
 const broker = require('message-broker');
 const Logger = require('logger');
 const moduleExists = require('module-exists');
-const events = require('rabbit-events');
+const events = require('app-events');
 
 const { MessageBroker } = events;
 
@@ -14,7 +14,7 @@ broker.on(SERVICE_READY, () => {
 
     if (moduleExists('./service')) {
         const service = require('./service');
-        service(app)(broker, events);
+        service(app, broker, events);
     } else {
         logger.logW('No Serice', 'No service found..');
     }

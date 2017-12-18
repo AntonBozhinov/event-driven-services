@@ -1,4 +1,4 @@
-const events = require('rabbit-events').MessageBroker;
+const events = require('app-events').MessageBroker;
 const Logger = require('logger');
 const amqp = require('amqplib');
 

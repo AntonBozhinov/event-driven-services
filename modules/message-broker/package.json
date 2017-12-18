@@ -12,7 +12,7 @@
   "dependencies": {
     "amqplib": "^0.5.2",
     "logger": "file:../logger",
-    "rabbit-events": "file:../rabbit-events"
+    "app-events": "file:../app-events"
   },
   "devDependencies": {
     "eslint": "^4.13.1",
