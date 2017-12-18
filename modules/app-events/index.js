@@ -1,3 +1,4 @@
 module.exports = {
-    MessageBroker: require('./message-broker')
+    MessageBroker: require('./message-broker'),
+    user: require('./user')
 }
