@@ -6,14 +6,14 @@ const events = require('app-events');
 
 const { MessageBroker } = events;
 
-const {SERVICE_READY} = MessageBroker;
+const { SERVICE_READY } = MessageBroker;
 const logger = new Logger('USER SERVICE');
 
 broker.on(SERVICE_READY, () => {
     const PORT = process.env.PORT || 3000;
 
     if (moduleExists('./service')) {
-        const service = require('./service');
+        const service = require('./service'); // eslint-disable-line
         service(app, broker, events);
     } else {
         logger.logW('No Serice', 'No service found..');
