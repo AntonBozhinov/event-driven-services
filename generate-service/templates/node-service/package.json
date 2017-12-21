@@ -12,9 +12,9 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.2",
-    "logger": "file:../modules/logger",
-    "message-broker": "file:../modules/message-broker",
+    "logger": "file:./modules/logger",
+    "message-broker": "file:./modules/message-broker",
     "module-exists": "^0.1.1",
-    "app-events": "file:../modules/app-events"
+    "app-events": "file:./modules/app-events"
   }
 }

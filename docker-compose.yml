@@ -17,18 +17,19 @@ services:
       - backend
 
 
-  # users:
-  #   build: ./base-image
-  #   restart: always
-  #   volumes:
-  #     - ./users:/usr/src/app
-  #   networks:
-  #     - backend
-  #   ports:
-  #     - 3000:3000
-  #     - 9229:9229
-  #   depends_on: 
-  #     - db
+  users:
+    build: ./users
+    restart: always
+    volumes:
+      - ./users:/usr/src/app
+    networks:
+      - backend
+    ports:
+      - 3000:3000
+      - 9229:9229
+    depends_on: 
+      - db
+      - rabbitmq
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -37,8 +38,6 @@ services:
       - 8080:15672
     networks:
       - backend
-    # depends_on:
-    #   - users
     
 
 

@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 const inquirer = require('inquirer');
-const fs = require('fs');
+const fs = require('fs-extra');
+const path = require('path');
 
 const CHOICES = fs.readdirSync(`${__dirname}/templates`);
 const QUESTIONS = [
@@ -24,39 +25,15 @@ const QUESTIONS = [
 
 const CURR_DIR = process.cwd();
 
-function createDirectoryContents(templatePath, newProjectPath) {
-  const filesToCreate = fs.readdirSync(templatePath);
-
-  filesToCreate.forEach((file) => {
-    const origFilePath = `${templatePath}/${file}`;
-
-    // get stats about the current file
-    const stats = fs.statSync(origFilePath);
-
-    if (stats.isFile()) {
-      const contents = fs.readFileSync(origFilePath, 'utf8');
-
-      // Rename
-      if (file === '.npmignore') file = '.gitignore'; // eslint-disable-line
-
-      const writePath = `${CURR_DIR}/${newProjectPath}/${file}`;
-      fs.writeFileSync(writePath, contents, 'utf8');
-    } else if (stats.isDirectory()) {
-      fs.mkdirSync(`${CURR_DIR}/${newProjectPath}/${file}`);
-
-      // recursive call
-      createDirectoryContents(`${templatePath}/${file}`, `${newProjectPath}/${file}`);
-    }
-  });
-}
-
 inquirer.prompt(QUESTIONS)
   .then((answers) => {
     const projectChoice = answers['project-choice'];
     const projectName = answers['project-name'];
     const templatePath = `${__dirname}/templates/${projectChoice}`;
 
-    fs.mkdirSync(`${CURR_DIR}/${projectName}`);
-
-    createDirectoryContents(templatePath, projectName);
+    fs.copySync(templatePath, `${CURR_DIR}/${projectName}`);
+    fs.ensureLinkSync(path.resolve(__dirname, '../modules'), `${CURR_DIR}/${projectName}/modules`)
+  })
+  .catch(err => {
+    console.error(err);
   });
