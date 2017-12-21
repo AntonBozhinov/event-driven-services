@@ -3,7 +3,6 @@ version: '3.2'
 
 services:
 
-
   db:
     image: postgres
     restart: always
@@ -16,21 +15,6 @@ services:
     networks:
       - backend
 
-
-  users:
-    build: ./users
-    restart: always
-    volumes:
-      - ./users:/usr/src/app
-    networks:
-      - backend
-    ports:
-      - 3000:3000
-      - 9229:9229
-    depends_on: 
-      - db
-      - rabbitmq
-
   rabbitmq:
     image: rabbitmq:3-management
     ports:
@@ -38,8 +22,6 @@ services:
       - 8080:15672
     networks:
       - backend
-    
-
 
 networks:
   backend:

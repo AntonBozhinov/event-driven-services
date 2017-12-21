@@ -12,7 +12,10 @@ const QUESTIONS = [
     message: 'What service would you like to generate?',
     choices: CHOICES,
   },
-  {
+];
+
+if (!process.argv[2]) {
+  QUESTIONS.push({
     name: 'project-name',
     type: 'input',
     message: 'Project name:',
@@ -20,19 +23,20 @@ const QUESTIONS = [
       if (/^([A-Za-z\-_\d])+$/.test(input)) return true;
       return 'Project name may only include letters, numbers, underscores and hashes.';
     },
-  },
-];
+  });
+}
 
 const CURR_DIR = process.cwd();
 
 inquirer.prompt(QUESTIONS)
   .then((answers) => {
+    const cliArg = process.argv[2];
     const projectChoice = answers['project-choice'];
     const projectName = answers['project-name'];
     const templatePath = `${__dirname}/templates/${projectChoice}`;
 
-    fs.copySync(templatePath, `${CURR_DIR}/${projectName}`);
-    fs.ensureLinkSync(path.resolve(__dirname, '../modules'), `${CURR_DIR}/${projectName}/modules`)
+    fs.copySync(templatePath, `${CURR_DIR}/${cliArg || projectName}`);
+    fs.ensureSymlinkSync(path.resolve(__dirname, '../modules'), `${CURR_DIR}/${projectName}/modules`);
   })
   .catch(err => {
     console.error(err);
