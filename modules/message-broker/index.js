@@ -5,12 +5,15 @@ const Logger = require('logger');
 const {
     handleConnection,
     createChannel,
+    publish,
+    subscribe,
 } = require('./lib/actions');
 
 const {
     CONNECTING,
     CONNECTED,
     PUBLISH,
+    SUBSCRIBE,
 } = events;
 
 const logger = new Logger('Message Broker');
@@ -20,6 +23,8 @@ class MessageBroker extends EventEmitter {
         super();
         this.on(CONNECTING, handleConnection.bind(this));
         this.on(CONNECTED, createChannel.bind(this));
+        this.on(PUBLISH, publish.bind(this));
+        this.on(SUBSCRIBE, subscribe.bind(this));
     }
 
     static getInstance() {
@@ -40,7 +45,7 @@ class MessageBroker extends EventEmitter {
         this.emit(CONNECTING, connectionString);
     }
 
-    publish(channelName, message) {
+    publish(channelName, msg) {
         if (!this.connection) {
             logger.logD('publish', 'connection to message service lost... Trying to reconnect...');
             return this.emit(CONNECTING, this.connectionString);
@@ -50,7 +55,20 @@ class MessageBroker extends EventEmitter {
             return this.emit(CONNECTED, this.connection);
         }
 
-        return this.emit(PUBLISH, { channelName, message });
+        return this.emit(PUBLISH, { channelName, msg });
+    }
+
+    subscribe(channel) {
+        if (!this.connection) {
+            logger.logD('publish', 'connection to message service lost... Trying to reconnect...');
+            return this.emit(CONNECTING, this.connectionString);
+        }
+
+        if (!this.channel) {
+            return this.emit(CONNECTED, this.connection);
+        }
+
+        return this.emit(SUBSCRIBE, channel);
     }
 }
 

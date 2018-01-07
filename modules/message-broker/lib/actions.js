@@ -66,3 +66,31 @@ exports.createChannel = (function () {
             });
     };
 }());
+
+exports.publish = function ({ channelName, msg }) {
+    const exchange = channelName.split('.').shift();
+    const topic = channelName.split('.').length > 1 ? channelName.split('.').slice(1).join('.') : '#';
+    this.channel.assertExchange(exchange, 'topic', { durable: true });
+    this.channel.publish(exchange, topic, Buffer.from(msg), { persistent: true });
+};
+
+exports.subscribe = function (...channels) {
+    channels.forEach((channelName) => {
+        const exchange = channelName.split('.').shift();
+        const topic = channelName.split('.').length > 1 ? channelName.split('.').slice(1).join('.') : '#';
+        this.channel.assertExchange(exchange, 'topic', { durable: true });
+        this.channel.assertQueue('', { exclusive: true })
+            .then((q) => {
+                const handleMessage = (msg) => {
+                    this.emit(channelName, msg);
+                    this.channel.ack(msg);
+                };
+                this.channel.bindQueue(q.queue, exchange, topic);
+                this.channel.consume(q.queue, handleMessage);
+            })
+            .catch((err) => {
+                logger.logE('subscribe', `Unable to subscrive to channel: ${channelName}`);
+                console.error(err);
+            });
+    });
+};

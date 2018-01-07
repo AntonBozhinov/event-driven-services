@@ -1,8 +1,8 @@
 const app = require('express')();
 const broker = require('message-broker');
 const Logger = require('logger');
-const moduleExists = require('module-exists');
 const events = require('app-events');
+const service = require('./service'); // eslint-disable-line
 
 const { MessageBroker } = events;
 
@@ -11,14 +11,7 @@ const logger = new Logger('USER SERVICE');
 
 broker.on(SERVICE_READY, () => {
     const PORT = process.env.PORT || 3000;
-
-    if (moduleExists('./service')) {
-        const service = require('./service'); // eslint-disable-line
-        service(app, broker, events);
-    } else {
-        logger.logW('No Serice', 'No service found..');
-    }
-
+    service(app, broker, events);
     app.listen(PORT, () => {
         logger.logI('START', `Server started at port ${PORT}`);
     });
