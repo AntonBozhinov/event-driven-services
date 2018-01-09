@@ -2,6 +2,7 @@
     "extends": "airbnb-base",
     "rules": {
         "indent":["error", 4],
-        "func-names": 0
+        "func-names": 0,
+        "no-plusplus": 0
     }
 }

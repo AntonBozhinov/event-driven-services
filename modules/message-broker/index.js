@@ -70,6 +70,24 @@ class MessageBroker extends EventEmitter {
 
         return this.emit(SUBSCRIBE, channel);
     }
+    when(eventArray, next) {
+        const self = this;
+        const fulfilled = new Array(eventArray.length);
+        const result = [];
+        eventArray.forEach((event, index) => {
+            const handler = (msg) => {
+                result.push(msg);
+                fulfilled[index] = true;
+                for (let i = 0; i < fulfilled.length; i++) {
+                    if (!fulfilled[i]) {
+                        return false;
+                    }
+                }
+                return next(result);
+            };
+            self.on(event, handler);
+        });
+    }
 }
 
 module.exports = MessageBroker.getInstance();
