@@ -73,10 +73,10 @@ class MessageBroker extends EventEmitter {
     when(eventArray, next) {
         const self = this;
         const fulfilled = new Array(eventArray.length);
-        const result = [];
+        const result = {};
         eventArray.forEach((event, index) => {
             const handler = (msg) => {
-                result.push(msg);
+                result[event] = msg;
                 fulfilled[index] = true;
                 for (let i = 0; i < fulfilled.length; i++) {
                     if (!fulfilled[i]) {
