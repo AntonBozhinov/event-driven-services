@@ -58,7 +58,7 @@ class MessageBroker extends EventEmitter {
         return this.emit(PUBLISH, { channelName, msg });
     }
 
-    subscribe(channel) {
+    subscribe(...channels) {
         if (!this.connection) {
             logger.logD('publish', 'connection to message service lost... Trying to reconnect...');
             return this.emit(CONNECTING, this.connectionString);
@@ -68,7 +68,7 @@ class MessageBroker extends EventEmitter {
             return this.emit(CONNECTED, this.connection);
         }
 
-        return this.emit(SUBSCRIBE, channel);
+        return this.emit(SUBSCRIBE, ...channels);
     }
     when(eventArray, next) {
         const self = this;
