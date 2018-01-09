@@ -2,7 +2,6 @@
 
 const inquirer = require('inquirer');
 const fs = require('fs-extra');
-const path = require('path');
 
 const CHOICES = fs.readdirSync(`${__dirname}/templates`);
 const QUESTIONS = [
@@ -36,7 +35,6 @@ inquirer.prompt(QUESTIONS)
         const templatePath = `${__dirname}/templates/${projectChoice}`;
 
         fs.copySync(templatePath, `${CURR_DIR}/${cliArg || projectName}`);
-        fs.ensureSymlinkSync(path.resolve(__dirname, '../modules'), `${CURR_DIR}/${projectName}/modules`);
     })
     .catch((err) => {
         console.error(err); // eslint-disable-line

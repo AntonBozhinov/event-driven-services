@@ -11,9 +11,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.16.2",
-    "logger": "file:./modules/logger",
-    "message-broker": "file:./modules/message-broker",
-    "app-events": "file:./modules/app-events"
+    "express": "^4.16.2"
   }
 }
