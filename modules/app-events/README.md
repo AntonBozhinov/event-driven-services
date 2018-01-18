@@ -4,7 +4,7 @@ This module is a set of event names mapped in a conventional way
 ### Event naming convention
 Every event name must consist of a entity group, entity name, target object, and an action. 
 ```
-'<group>.<name>.<object>.<action>'
+'<group>.<name>.<object>.<action>.<status>'
 ```
 examples:
 

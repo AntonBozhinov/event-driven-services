@@ -67,14 +67,14 @@ exports.createChannel = (function () {
     };
 }());
 
-exports.publish = function ({ channelName, msg }) {
+exports.publish = function ({ channelName, msg, options }) {
     const exchange = channelName.split('.').shift();
     const topic = channelName.split('.').length > 1 ? channelName.split('.').slice(1).join('.') : '#';
     this.channel.assertExchange(exchange, 'topic', { durable: true });
-    this.channel.publish(exchange, topic, Buffer.from(msg), { persistent: true });
+    this.channel.publish(exchange, topic, Buffer.from(msg), { ...options, persistent: true });
 };
 
-exports.subscribe = function (...channels) {
+exports.subscribe = function (channels) {
     channels.forEach((channelName) => {
         const exchange = channelName.split('.').shift();
         const topic = channelName.split('.').length > 1 ? channelName.split('.').slice(1).join('.') : '#';
