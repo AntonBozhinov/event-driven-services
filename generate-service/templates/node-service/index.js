@@ -1,14 +1,10 @@
-const app = require('express')();
-const broker = require('message-broker');
-const events = require('app-events');
-const startService = require('./src'); // eslint-disable-line
+const broker = require('message-broker'); // eslint-disable-line
+const service = require('./src');
 
-const { MessageBroker } = events;
-
-const { SERVICE_READY } = MessageBroker;
+const { SERVICE_READY } = broker.nativeEvents;
 
 broker.on(SERVICE_READY, () => {
-    startService();
+    service();
 });
 
 broker.connect('amqp://localhost');

@@ -10,9 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "ajv": "^6.0.1",
     "amqplib": "^0.5.2",
-    "logger": "file:../logger",
-    "app-events": "file:../app-events"
+    "logger": "file:../logger"
   },
   "devDependencies": {
     "eslint": "^4.13.1",

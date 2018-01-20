@@ -1,4 +1,4 @@
-const events = require('app-events').MessageBroker;
+const events = require('../events');
 const Logger = require('logger');
 const amqp = require('amqplib');
 
@@ -90,7 +90,7 @@ exports.subscribe = function (channels) {
             })
             .catch((err) => {
                 logger.logE('subscribe', `Unable to subscrive to channel: ${channelName}`);
-                console.error(err);
+                console.error(err); // eslint-disable-line
             });
     });
 };

@@ -28,8 +28,13 @@ class Logger {
         console.warn(`${grey(new Date())} [${yellow(labels.WARNING)}][${magenta(this.hostname)}][${cyan(this.serviceName)}][${grey(tag)}]: ${message}`);
     }
 
-    logEvent(event, message) {
-        console.info(`${grey(new Date())} [${green(labels.EVENT)}][${magenta(this.hostname)}][${green(event)}]:`, message);
+    logEvent(serviceName, event, message) {
+        try {
+            JSON.parse(message);
+        } catch (err) {
+            message = message.toString();
+        }
+        console.info(`${grey(new Date())} [${green(labels.EVENT)}][${magenta(this.hostname)}][${cyan(serviceName)}][${green(event)}]:`, message);
     }
 }
 
