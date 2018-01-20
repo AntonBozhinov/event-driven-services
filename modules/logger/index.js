@@ -32,6 +32,9 @@ class Logger {
         try {
             JSON.parse(message);
         } catch (err) {
+            if (typeof message === 'object' && !Array.isArray(message)) {
+                message = message.constructor.name
+            }
             message = message.toString();
         }
         console.info(`${grey(new Date())} [${green(labels.EVENT)}][${magenta(this.hostname)}][${cyan(serviceName)}][${green(event)}]:`, message);
