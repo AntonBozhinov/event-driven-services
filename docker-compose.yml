@@ -13,6 +13,14 @@ services:
       - 5432:5432
     networks:
       - backend
+  
+  redis:
+    image: redis:alpine
+    restart: always
+    volumes:
+      - ./db/redis:/data
+    ports:
+      - 6379:6379
 
   rabbitmq:
     image: rabbitmq:3-management
