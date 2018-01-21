@@ -14,7 +14,8 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceFolder}/gateway/index.js"
+            "cwd": "${workspaceFolder}/test",
+            "program": "${workspaceFolder}/test/index.js"
         }
     ]
 }

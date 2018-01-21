@@ -35,6 +35,7 @@ class MessageBroker extends EventEmitter {
         this.ajv = new Ajv();
         this.events = {};
         this.nativeEvents = events;
+        this.nativeEventsArr = Object.keys(events).map(e => events[e]);
     }
 
     static getInstance() {
@@ -53,7 +54,7 @@ class MessageBroker extends EventEmitter {
     }
 
     validate(event, data, schema) {
-        if (!this.nativeEvents[event]) {
+        if (!this.nativeEventsArr.find(ne => ne === event)) {
             return this.ajv.validate(schema, data);
         }
         return true;
@@ -114,7 +115,10 @@ class MessageBroker extends EventEmitter {
             return this.emit(CONNECTED, this.connection);
         }
 
-        if (this.events[event] && this.validate(event, msg, this.events[event])) {
+        if (
+            (this.events[event] && this.validate(event, msg, this.events[event])) ||
+            this.nativeEventsArr.find(ne => ne === event)
+        ) {
             return this.emit(PUBLISH, { channelName: event, msg, options });
         }
 
