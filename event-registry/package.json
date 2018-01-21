@@ -11,7 +11,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.16.2"
+    "express": "^4.16.2",
+    "knex": "^0.14.2",
+    "redis": "^2.8.0"
   },
   "devDependencies": {
     "eslint": "^4.16.0",
