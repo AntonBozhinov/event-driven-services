@@ -8,11 +8,24 @@ services:
     environment:
       POSTGRES_DB: dev
       POSTGRES_USER: 'anton.bozhinov'
-      POSTGRES_PASSWORD: 'Domini1313'
+      POSTGRES_PASSWORD: 'asd'
     volumes:
-      - ./db/postgres:/var/lib/postgresql/data
+      - ./db/postgres/dev:/var/lib/postgresql/data
     ports:
       - 5432:5432
+    networks:
+      - backend
+  eventsDB:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: events
+      POSTGRES_USER: 'anton.bozhinov'
+      POSTGRES_PASSWORD: 'asd'
+    volumes:
+      - ./db/postgres/events:/var/lib/postgresql/data
+    ports:
+      - 5433:5432
     networks:
       - backend
   
@@ -20,7 +33,7 @@ services:
     image: adminer
     restart: always
     ports:
-      - 8080:8080
+      - 4001:8080
     networks: 
       - backend
   
@@ -36,7 +49,7 @@ services:
     image: rabbitmq:3-management
     ports:
       - 5672:5672
-      - 8081:15672
+      - 4000:15672
     networks:
       - backend
 

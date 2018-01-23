@@ -8,10 +8,27 @@ const {
     CONNECTING, CONNECTED, CHANNEL_CREATED, SERVICE_READY,
 } = events;
 
+exports.sync = function sync() {
+    this.subscribtionsCache.forEach((cachedChannel) => {
+        this.subscribe(cachedChannel);
+    });
+    // clear cache
+    this.subscribtionsCache = [];
+    this.eventCache.forEach((cache) => {
+        const { event, msg, options } = cache;
+        this.publish(event, msg, options);
+        const message = {};
+        message.content = Buffer.from(msg);
+        this.emit(event, message);
+    });
+    // clear cache
+    this.eventCache = [];
+};
+
 exports.handleConnection = (function () {
     let counter = 0;
     let interval = 1000;
-    return function (connectionString) { // eslint-disable-line
+    return function handleConnection(connectionString) { // eslint-disable-line
         logger.logI('connect', `connecting to ${connectionString}`);
         const self = this;
         amqp.connect(connectionString)
@@ -40,7 +57,7 @@ exports.handleConnection = (function () {
 exports.createChannel = (function () {
     let counter = 0;
     let interval = 1000;
-    return function (conn) {
+    return function createChannel(conn) {
         logger.logI('connected', 'creating channel');
         const self = this;
         conn.createChannel()
@@ -67,14 +84,14 @@ exports.createChannel = (function () {
     };
 }());
 
-exports.publish = function ({ channelName, msg, options }) {
+exports.publish = function publish({ channelName, msg, options }) {
     const exchange = channelName.split('.').shift();
     const topic = channelName.split('.').length > 1 ? channelName.split('.').slice(1).join('.') : '#';
     this.channel.assertExchange(exchange, 'topic', { durable: true });
     this.channel.publish(exchange, topic, Buffer.from(msg), { ...options, persistent: true });
 };
 
-exports.subscribe = function (channels) {
+exports.subscribe = function subscribe(channels) {
     channels.forEach((channelName) => {
         const exchange = channelName.split('.').shift();
         const topic = channelName.split('.').length > 1 ? channelName.split('.').slice(1).join('.') : '#';

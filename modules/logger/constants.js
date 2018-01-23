@@ -3,7 +3,8 @@ exports.labels = {
     INFO: 'info',
     WARNING: 'warning',
     ERROR: 'error',
-    EVENT: 'EVENT'
+    EVENT: 'EVENT',
+    LISTENER: 'LISTENER'
 };
 
 

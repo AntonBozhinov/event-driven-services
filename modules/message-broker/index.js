@@ -9,6 +9,7 @@ const {
     createChannel,
     publish,
     subscribe,
+    sync,
 } = require('./lib/actions');
 
 const {
@@ -19,6 +20,8 @@ const {
     REGISTER_EVENT,
     DELETE_EVENT,
     UPDATE_EVENT,
+    ADD_LISTENER,
+    SERVICE_READY,
 } = events;
 
 const logger = new Logger('Message Broker');
@@ -27,15 +30,18 @@ class MessageBroker extends EventEmitter {
     constructor(serviceName) {
         super();
         this.serviceName = serviceName || 'UNKNOWN';
+        this.ajv = new Ajv();
+        this.events = {};
+        this.eventCache = [];
+        this.subscribtionsCache = [];
+        this.nativeEvents = events;
+        this.nativeEventsArr = Object.keys(events).map(e => events[e]);
+
         this.on(CONNECTING, handleConnection.bind(this));
         this.on(CONNECTED, createChannel.bind(this));
         this.on(PUBLISH, publish.bind(this));
         this.on(SUBSCRIBE, subscribe.bind(this));
-
-        this.ajv = new Ajv();
-        this.events = {};
-        this.nativeEvents = events;
-        this.nativeEventsArr = Object.keys(events).map(e => events[e]);
+        this.on(SERVICE_READY, sync.bind(this));
     }
 
     static getInstance() {
@@ -49,8 +55,23 @@ class MessageBroker extends EventEmitter {
     }
 
     emit(event, value) {
-        logger.logEvent(this.serviceName, event, value);
+        if (event === PUBLISH) {
+            logger.logEvent(this.serviceName, event, value.msg);
+        } else {
+            logger.logEvent(this.serviceName, event, value);
+        }
         EventEmitter.prototype.emit.call(this, event, value);
+    }
+
+    on(event, listener, description) {
+        logger.logListener(this.serviceName, event, listener.name);
+        this.publish(ADD_LISTENER, JSON.stringify({
+            service: this.serviceName,
+            event,
+            listener: listener.name,
+            description,
+        }));
+        EventEmitter.prototype.on.call(this, event, listener);
     }
 
     validate(event, data, schema) {
@@ -69,17 +90,17 @@ class MessageBroker extends EventEmitter {
             }
         };
         const parsedSchema = parseJson(schema);
-        if (!this.events[event]) {
-            this.events[event] = schema;
-            return this.publish(REGISTER_EVENT, JSON.stringify({ event, schema: parsedSchema }));
+        if (!this.events[event.name]) {
+            this.events[event.name] = schema;
+            return this.publish(REGISTER_EVENT, JSON.stringify({ ...event, schema: parsedSchema }));
         }
         return logger.logE('REGISTER EVENT', 'Event already registered');
     }
 
-    deleteEvent(event) {
-        if (this.events[event]) {
-            delete this.events[event];
-            return this.publish(DELETE_EVENT, event);
+    deleteEvent(eventName) {
+        if (this.events[eventName]) {
+            delete this.events[eventName];
+            return this.publish(DELETE_EVENT, eventName);
         }
         return logger.logE('DELETE EVENT', 'Event not found');
     }
@@ -93,9 +114,9 @@ class MessageBroker extends EventEmitter {
             }
         };
         const parsedSchema = parseJson(schema);
-        if (this.events[event]) {
-            this.events[event] = schema;
-            return this.publish(UPDATE_EVENT, JSON.stringify({ event, schema: parsedSchema }));
+        if (this.events[event.name]) {
+            this.events[event.name] = schema;
+            return this.publish(UPDATE_EVENT, JSON.stringify({ ...event, schema: parsedSchema }));
         }
         return logger.logE('UPDATE EVENT', 'Event not found');
     }
@@ -106,13 +127,15 @@ class MessageBroker extends EventEmitter {
     }
 
     publish(event, msg, options = {}) {
-        if (!this.connection) {
-            logger.logD('publish', 'connection to message service lost... Trying to reconnect...');
-            return this.emit(CONNECTING, this.connectionString);
-        }
-
-        if (!this.channel) {
-            return this.emit(CONNECTED, this.connection);
+        if (!this.connection || !this.channel) {
+            logger.logW('PUBLISH', 'No connection to message service. Events will be cached and send on service ready');
+            // event cache storage limit
+            if (!(this.eventCache.length > 1000)) {
+                return this.eventCache.push({ event, msg, options });
+            }
+            const errMsg = `Maximum event cache exceeded. Please connect ${this.serviceName} to a messaging service`;
+            logger.logE('PUBLISH', errMsg);
+            throw new Error(errMsg);
         }
 
         if (
@@ -126,13 +149,16 @@ class MessageBroker extends EventEmitter {
     }
 
     subscribe(...channels) {
-        if (!this.connection) {
-            logger.logD('publish', 'connection to message service lost... Trying to reconnect...');
-            return this.emit(CONNECTING, this.connectionString);
-        }
-
-        if (!this.channel) {
-            return this.emit(CONNECTED, this.connection);
+        if (!this.connection || !this.channel) {
+            logger.logW('SUBSCRIBE', 'No connection to message service. Subscribitions will be cached and send on service ready');
+            // subscribtionsCache cache storage limit
+            if (!(this.subscribtionsCache.length > 1000)) {
+                this.subscribtionsCache = this.subscribtionsCache.concat(channels);
+                return this.subscribtionsCache;
+            }
+            const errMsg = `Maximum subscribition cache exceeded. Please connect ${this.serviceName} to a messaging service`;
+            logger.logE('SUBSCRIBE', errMsg);
+            throw new Error(errMsg);
         }
 
         return this.emit(SUBSCRIBE, channels);
