@@ -7,8 +7,8 @@ services:
     restart: always
     environment:
       POSTGRES_DB: dev
-      POSTGRES_USER: 'anton.bozhinov'
-      POSTGRES_PASSWORD: 'asd'
+      POSTGRES_USER: 'user'
+      POSTGRES_PASSWORD: 'pass'
     volumes:
       - ./db/postgres/dev:/var/lib/postgresql/data
     ports:
